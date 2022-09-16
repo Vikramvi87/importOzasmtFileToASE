@@ -1,9 +1,9 @@
 param ($ozasmtFile,$scanName)
-$aseHostname='xxxxxxxxxxxxxxxxx'
-$aseApiKeyId='xxxxxxxxxxxxxxxxx'
-$aseApiKeySecret='xxxxxxxxxxxxxxxxx'
+$aseHostname='winappscan.lab.local'
+$aseApiKeyId='2GZ9U5DA9HZZMPMIRTF3FCRNDN6DZFYR'
+$aseApiKeySecret='W8RZQ1LLCC4K6MKP23BW00MKHGK0LKQT'
 
-# Load Ozasmt file in a variable and get the applicationname
+# Load Ozasmt file in a variable and get the aseAppName
 [XML]$ozasmt = Get-Content $ozasmtFile;
 $aseAppName=$ozasmt.assessmentrun.assessmentconfig.application.name
 write-host "The application name is $aseAppName"
@@ -18,18 +18,17 @@ if ([string]::IsNullOrWhitespace($aseAppId)){
 	$session = New-Object Microsoft.PowerShell.Commands.WebRequestSession;
 	$session.Cookies.Add((New-Object System.Net.Cookie("asc_session_id", "$sessionId", "/", "$aseHostname")));
 	$aseAppId=$(Invoke-WebRequest -Method POST -WebSession $session -Headers @{"Asc_xsrf_token"="$sessionId"} -ContentType "application/json" -Body "{`"name`":`"$aseAppName`" }" -Uri "https://$aseHostname`:9443/ase/api/applications" -SkipCertificateCheck | ConvertFrom-Json).id;
-	echo "$aseAppId" > aseAppId.txt
 	write-host "Application $aseAppName registered with id $aseAppId"
+	sleep 3
     }
 else{
 	write-host "There is a registered application."
 	}
-
-sleep 2	
-Invoke-WebRequest -Method Post -Form @{"scanName"="$scanName";"uploadedfile"="$ozasmtFile"} -WebSession $session -Headers @{"Asc_xsrf_token"="$sessionId";"X-Requested-With"="XMLHttpRequest"}  -Uri "https://$aseHostname`:9443/ase/api/issueimport/$aseAppId/6/" -SkipCertificateCheck | Out-Null;
-
+# Import ozasmt file 
+Invoke-WebRequest -Method Post -Form @{"scanName"="$scanName";"uploadedfile"=Get-Item -Path $ozasmtFile;"Asc_xsrf_token"="$sessionId"} -WebSession $session -Headers @{"Asc_xsrf_token"="$sessionId";"X-Requested-With"="XMLHttpRequest";"ContentType"="text/plain"}  -Uri "https://$aseHostname`:9443/ase/api/issueimport/$aseAppId/6/" -SkipCertificateCheck | Out-Null;
+# Rename imported file
 $ozasmtFile=$ozasmtFile.replace('.\','')
 Rename-Item -Path "$ozasmtFile" -NewName "imported-$ozasmtFile"
 write-host "$ozasmtFile file with scanName $scanName imported in Application $aseAppName";
-
+# ASE Logout session
 Invoke-WebRequest -Method GET -WebSession $session -Headers @{"Asc_xsrf_token"="$sessionId";"X-Requested-With"="XMLHttpRequest"}  -Uri "https://$aseHostname`:9443/ase/api/logout" -SkipCertificateCheck | Out-Null;
