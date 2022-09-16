@@ -26,7 +26,7 @@ else{
 	}
 
 sleep 2	
-Invoke-WebRequest -Method Post -Form @{"scanName"="$scanName";"uploadedfile"="$ozasmtFile"} -WebSession $session -Headers @{"Asc_xsrf_token"="$sessionId";"X-Requested-With"="XMLHttpRequest"}  -Uri "https://$aseHostname`:9443/ase/api/issueimport/$aseAppId/3/" -SkipCertificateCheck | Out-Null;
+Invoke-WebRequest -Method Post -Form @{"scanName"="$scanName";"uploadedfile"="$ozasmtFile"} -WebSession $session -Headers @{"Asc_xsrf_token"="$sessionId";"X-Requested-With"="XMLHttpRequest"}  -Uri "https://$aseHostname`:9443/ase/api/issueimport/$aseAppId/6/" -SkipCertificateCheck | Out-Null;
 
 $ozasmtFile=$ozasmtFile.replace('.\','')
 Rename-Item -Path "$ozasmtFile" -NewName "imported-$ozasmtFile"
