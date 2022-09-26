@@ -1,7 +1,7 @@
 param ($ozasmtFile,$scanName)
-$aseHostname='winappscan.lab.local'
-$aseApiKeyId='2GZ9U5DA9HZZMPMIRTF3FCRNDN6DZFYR'
-$aseApiKeySecret='W8RZQ1LLCC4K6MKP23BW00MKHGK0LKQT'
+$aseHostname='xxxxxxxxxxxxxx'
+$aseApiKeyId='xxxxxxxxxxxxxx'
+$aseApiKeySecret='xxxxxxxxxxxxxx'
 
 # Load Ozasmt file in a variable and get the aseAppName
 [XML]$ozasmt = Get-Content $ozasmtFile;
