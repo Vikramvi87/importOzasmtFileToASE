@@ -4,7 +4,13 @@ $aseApiKeyId='xxxxxxxxxxxxxx'
 $aseApiKeySecret='xxxxxxxxxxxxxx'
 
 # Load Ozasmt file in a variable and get the aseAppName
-[XML]$ozasmt = Get-Content $ozasmtFile;
+try{
+	[XML]$ozasmt = Get-Content $ozasmtFile -ErrorAction stop;
+}
+catch{
+	write-output "There is no OZASMT file.";
+	break;
+}
 $aseAppName=$ozasmt.assessmentrun.assessmentconfig.application.name
 write-host "The application name is $aseAppName"
 # ASE authentication
@@ -26,6 +32,7 @@ else{
 	}
 # Import ozasmt file 
 Invoke-WebRequest -Method Post -Form @{"scanName"="$scanName";"uploadedfile"=Get-Item -Path $ozasmtFile;"Asc_xsrf_token"="$sessionId"} -WebSession $session -Headers @{"Asc_xsrf_token"="$sessionId";"X-Requested-With"="XMLHttpRequest";"ContentType"="text/plain"}  -Uri "https://$aseHostname`:9443/ase/api/issueimport/$aseAppId/6/" -SkipCertificateCheck | Out-Null;
+#Invoke-WebRequest -Method Post -Form @{"scanName"="$scanName";"uploadedfile"=Get-Item -Path $ozasmtFile;} -WebSession $session -Headers @{"Asc_xsrf_token"="$sessionId";"X-Requested-With"="XMLHttpRequest";"ContentType"="text/plain"}  -Uri "https://$aseHostname`:9443/ase/api/issueimport/$aseAppId/6/" -SkipCertificateCheck | Out-Null;
 # Rename imported file
 $ozasmtFile=$ozasmtFile.replace('.\','')
 Rename-Item -Path "$ozasmtFile" -NewName "imported-$ozasmtFile"
