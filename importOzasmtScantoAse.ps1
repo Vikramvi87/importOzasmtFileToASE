@@ -30,8 +30,12 @@ if ([string]::IsNullOrWhitespace($aseAppId)){
 else{
 	write-host "There is a registered application."
 	}
+$Form = [ordered]@{
+	scanName = $scanName
+	uploadedfile = Get-Item -Path $ozasmtFile
+	}
 # Import ozasmt file 
-Invoke-WebRequest -Method Post -Form @{"scanName"="$scanName";"uploadedfile"=Get-Item -Path $ozasmtFile;"Asc_xsrf_token"="$sessionId"} -WebSession $session -Headers @{"Asc_xsrf_token"="$sessionId";"X-Requested-With"="XMLHttpRequest";"ContentType"="text/plain"}  -Uri "https://$aseHostname`:9443/ase/api/issueimport/$aseAppId/6/" -SkipCertificateCheck | Out-Null;
+Invoke-WebRequest -Method Post -Form $Form -Headers @{"Asc_xsrf_token"="$sessionId"} -WebSession $session -Uri "https://$aseHostname`:9443/ase/api/issueimport/$aseAppId/6/" -SkipCertificateCheck | Out-Null;
 #Invoke-WebRequest -Method Post -Form @{"scanName"="$scanName";"uploadedfile"=Get-Item -Path $ozasmtFile;} -WebSession $session -Headers @{"Asc_xsrf_token"="$sessionId";"X-Requested-With"="XMLHttpRequest";"ContentType"="text/plain"}  -Uri "https://$aseHostname`:9443/ase/api/issueimport/$aseAppId/6/" -SkipCertificateCheck | Out-Null;
 # Rename imported file
 $ozasmtFile=$ozasmtFile.replace('.\','')
